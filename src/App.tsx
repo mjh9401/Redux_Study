@@ -1,21 +1,34 @@
-import { useState } from 'react';
-import './App.css';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import './App.css';
+import { fetchPosts } from './actions/posts';
 import { RootState } from './reducers';
 
 type Props = {
-  value : any;
   onIncrement : () => void;
   onDecrement : () => void;
 }
 
-function App({value,onIncrement,onDecrement}: Props) {
+interface Post{
+  userId : number;
+  id : number;
+  title : string;
+}
+
+function App({onIncrement,onDecrement}: Props) {
   // useSelector : store 상태 가져오는 hooks
   const counter = useSelector((state:RootState) => state.counter);
   const todos : String[] = useSelector((state:RootState) => state.todos);
+  const posts:Post[] = useSelector((state : RootState)=> state.posts);
   // useDispatch : store에 상태 보는 hooks
   const dispatch = useDispatch();
   const [todoValue, setTodoValue] = useState("");
+
+  useEffect(() => {
+    dispatch(fetchPosts())
+  }, [dispatch])
+  
+
   const handleChange = (e : React.ChangeEvent<HTMLInputElement>) =>{
     setTodoValue(e.target.value);
   }
@@ -43,6 +56,10 @@ function App({value,onIncrement,onDecrement}: Props) {
         <input type="text" value={todoValue} onChange={handleChange}/>
         <input type="submit" />
       </form>
+
+      <ul>
+        {posts.map((post,index)=> <li key={index}>{post.title}</li>)}
+      </ul>
     </div>
   );
 }
